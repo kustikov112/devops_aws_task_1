@@ -1,0 +1,33 @@
+name: CI/CD Pipeline
+
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform-check:
+    runs-on: ubuntu-latest
+    name: Terraform check
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+            audience: sts.amazonaws.com
+            aws-region: eu-central-1
+            role-to-assume: arn:aws:iam::648543359484:role/github_role_task_1
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Terraform init shared states
+        run: terraform init
+      - name: Terraform plan shared states
+        run: terraform plan
